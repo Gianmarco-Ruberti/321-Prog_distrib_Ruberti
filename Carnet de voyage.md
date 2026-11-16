@@ -53,24 +53,22 @@ On s'est arrêté là, on reprendra et finira les deux drills mercredi
 
 ### Mercredi 4 novembre
 
-Nous allons discuter un peu d'[actualité](https://www.24heures.ch/eca-vaud-perd-12-9-millions-pour-un-logiciel-jamais-livre-597188765739).
+Nous avons discuté un peu d'[actualité](https://www.24heures.ch/eca-vaud-perd-12-9-millions-pour-un-logiciel-jamais-livre-597188765739).
 
-Je vais reprendre rapidement la portée générale du projet (voir plus loin pourquoi)
+J'ai repris rapidement la portée générale du projet (voir plus loin pourquoi).
 
-Vous allez finir les deux drills (OO et sérialisation).
+Vous avez avancé sur les deux drills (OO et sérialisation), sans les finir complètement.
 
-Ceux qui auront terminé avant commenceront à travailler sur leur projet, en attendant
+Nous avons fait un debrief avec un focus sur la comparaison par valeur (`Equals`) et par référence (`==`).
 
-Nous ferons un debrief avec un focus sur la comparaison par valeur (`Equals`) et par référence (`==`)
+Nous avons décidé de garder le thème des boulangerie-pâtisseries pour notre projet.
 
-Nous allons décider du thème de notre projet
-_(Il faudra peut-être changer ce qui suit en fonction des décisions prises)_
+J'ai créé le repo, l'équipe et les droits d'accès.
 
-XCL créera le repo, l'équipe et les droits d'accès.  
-
-Pendant ce temps, chacun commencera la réalisation de son app "backoffice", l'endroit à partir duquel il va gérer sa BP.  
+Chacun a commencé la réalisation de son app "backoffice", l'endroit à partir duquel on va gérer sa BP.  
 Les conditions suivantes s'appliquent à tous les backoffices:
-- Le stack utilisé pour son développement est libre. 
+
+- Le stack utilisé pour son développement est libre.
 - Il doit pouvoir s'intégrer à notre infrastructure de communication (MQTT)
 - Le code est personnel, il est maintenu dans un repo personnel.
 - Le modèle minimal de BP contient:
@@ -89,12 +87,102 @@ Les conditions suivantes s'appliquent à tous les backoffices:
 TODO: définir ensemble l'emplacement de la référence commune pour les modèles
 
 Objectifs individuels:
+
 - Créer son backoffice "Hello World"
 - Sérialiser son business dans un fichier JSON
 - Redémarrer son backoffice avec relecture (désérialisation) du fichier
 - Echanger des fichiers par Discord, afficher le business d'un autre dans son backoffice
 
 DoD:
-- [ ] Le repo du projet commun est créé sur Github
-- [ ] Il est privé, accessible par tous les membres de l'équipe
-- [ ] On a défini l'endroit où sont les modèles de référence : 
+
+- [x] Le repo du projet commun est créé sur Github : https://github.com/ETML-INF/UMDD
+- [x] Il est privé, accessible par tous les membres de l'équipe
+- [ ] On a défini l'endroit où sont les modèles de référence. (_pas fait_)
+
+### Lundi 9 novembre
+
+On visait à:
+
+- Finaliser les BP 1.0 : Modéliser, Afficher, Sérialiser le modèle (bouton), désérialiser le modèle (démarrage)
+- Faire le checkpoint à 9h50 après la pause
+- Voir la théorie NTP
+- Définir le format du message NTP
+- Être capable de relire une heure "UMDD-NTP" et l'afficher
+- Faire des User Stories
+
+DoD:
+
+- [x] Toutes les BP affichent et (dé)sérialisent
+- [x] Format "UMDD-NTP": dans le [readme UMDD](https://github.com/ETML-INF/UMDD/tree/develop#Time)
+- [ ] Toutes les BP affichent la même heure
+
+### Mercredi 11 novembre
+
+On a défini et mis en place une infrastructure de communication par dessus le réseau TCP/IP déjà disponible.
+
+Il y avait plusieurs alternatives possibles. Nous aurions pu envisager de chercher, essayer, tester, évaluer, bref: expérimenter pour ensuite faire notre choix. Le temps que cela aurait pris aurait toutefois été prohibitif. Nous sommes donc partis sans analyse sur une des solutions possibles: MQTT. Nous avons convenu qu'il faudra discuter la pertinence de ce choix en fin de module, une fois que nous l'aurons expérimenté.
+
+Nous avons vu la [théorie MQTT](./supports/mqtt.md).
+
+Nous avons eu des choix à faire ensemble:
+
+- Quel broker MQTT utiliser ? Comment en garantir la disponibilité continue ?
+  - Voir section [MQTT](https://github.com/ETML-INF/UMDD/blob/develop/README.md#mqtt) de notre repo
+- Quelle est la structure des topics ?
+  - Voir section [MQTT](https://github.com/ETML-INF/UMDD/blob/develop/README.md#mqtt) de notre repo
+- Comment la "Source de temps" s'en est-elle servie pour diffuser l'heure ?
+  - Sérialise et diffuse son heure actuelle chaque seconde sur le topic choisi
+
+Nous avons repris la pratique, chacun ayant pour but la désérialisation d'un objet porteur du timestamp unix.
+
+Théophile, Damien, Erdem et Albert se sont mis à coder une source de temps. Ils ont mis leur code dans le dépôt UMDD, sur une branche ([gitflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)).
+
+Etapes visées:
+
+1. Être capable d'envoyer un message json sur un topic choisi à un broker MQTT
+2. Envoyer son heure courante chaque seconde
+3. Dockeriser
+4. Permettre de définir un décalage temporel
+5. Permettre de définir un facteur d'accélération du temps
+
+Deux sources ont atteint l'étape 3.  
+4 et 5 attendront.
+
+**Attention**: Il s'agit là de code commun cette fois. En fin de module, tout le monde est censé être en mesure de débugger ou améliorer ce composant!
+
+Chacun a ajouté à sa BP la réception du message de temps et l'affichage dynamique.
+
+DoD:
+
+- [x] Le broker MQTT de Dousville a été défini et documenté
+- [x] Le broker a été disponible
+- [x] Le topic pour la diffusion de l'heure a été défini et documenté
+- [x] Une source de temps a diffusé l'heure commune
+- [x] Toutes les BP ont affiché l'heure dynamiquement. (sauf Théophile et Tony)
+
+### Lundi 16 novembre
+
+Notre objectif global sera de mettre en place nos contrats JSON et que chaque BP applique les contrats `time` et `log`.
+
+Nous allons parcourir ensemble le support de théorie des [Microservices](./supports/microservice.md) et mettre en place le microservice `Log`
+
+Nous allons faire le checkpoint NTP/MQTT
+
+DoD Globale:
+
+- [ ] Nos contrats `envelope`, `time` et `log` sont dans notre [repo UMDD](https://github.com/ETML-INF/UMDD/tree/develop/doc/contracts)
+- [ ] Notre microservice `Time` est déployé pour être disponible H24
+- [ ] Le code de `Time` est commité dans `main`. Chacun est susceptible d'intervenir dessus à l'avenir
+- [ ] Notre microservice `Log` est déployé pour être disponible H24
+- [ ] Le code de `Log` est commité dans `main`. Chacun est susceptible d'intervenir dessus à l'avenir
+- [ ] Nous avons un client `LogSpy` publié. Un installeur est joint comme asset à la livraison de `LogSpy`
+- [ ] Le code de `LogSpy` est commité dans `main`. Chacun est susceptible d'intervenir dessus à l'avenir
+
+DoD Individuelle:
+
+| Quoi                                    | ZSI | EKE | ABI | GLT | KBN | TTS | TBN | GRI | DRT | SGN | OBR | DCL |
+| --------------------------------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Drill de validation de contrat effectué |     |     |     |     |     |     |     |     |     |     |     |     |
+| BP utilise le contrat `Time`            |     |     |     |     |     |     |     |     |     |     |     |     |
+| BP a des horaires d'ouverture définis   |     |     |     |     |     |     |     |     |     |     |     |     |
+| BP Annonce ouverture et fermeture       |     |     |     |     |     |     |     |     |     |     |     |     |
